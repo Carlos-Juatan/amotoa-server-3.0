@@ -24,10 +24,10 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create root compose structure. File: `docker-compose.yml`
-- [ ] T002 Create root environment template. File: `.env.example`
-- [ ] T003 [P] Configure backend Python project requirements. File: `backend/requirements.txt`
-- [ ] T004 [P] Initialize React Vite template with Tailwind and Lucide. File: `frontend/package.json`
+- [X] T001 Create root compose structure. File: `docker-compose.yml`
+- [X] T002 Create root environment template. File: `.env.example`
+- [X] T003 [P] Configure backend Python project requirements. File: `backend/requirements.txt`
+- [X] T004 [P] Initialize React Vite template with Tailwind and Lucide. File: `frontend/package.json`
 
 ---
 
@@ -37,12 +37,12 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T005 Setup core backend configuration class using Pydantic Settings. File: `backend/src/core/config.py`
-- [ ] T006 Setup MongoDB database connection client factory using Motor. File: `backend/src/core/database.py`
-- [ ] T007 Implement FastAPI server factory and root app initialization. File: `backend/src/main.py`
-- [ ] T008 [P] Define API request dependency to extract active account from `X-Active-Account` header. File: `backend/src/api/dependencies.py`
-- [ ] T009 Setup baseline Tailwind styling and colors for dark developer theme. File: `frontend/src/index.css`
-- [ ] T010 Create API client instance utilizing Axios with account header interceptor. File: `frontend/src/services/api.ts`
+- [X] T005 Setup core backend configuration class using Pydantic Settings. File: `backend/src/core/config.py`
+- [X] T006 Setup MongoDB database connection client factory using Motor. File: `backend/src/core/database.py`
+- [X] T007 Implement FastAPI server factory and root app initialization. File: `backend/src/main.py`
+- [X] T008 [P] Define API request dependency to extract active account from `X-Active-Account` header. File: `backend/src/api/dependencies.py`
+- [X] T009 Setup baseline Tailwind styling and colors for dark developer theme. File: `frontend/src/index.css`
+- [X] T010 Create API client instance utilizing Axios with account header interceptor. File: `frontend/src/services/api.ts`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel.
 
@@ -56,10 +56,10 @@
 
 ### Implementation for User Story 1
 
-- [ ] T011 [P] [US1] Create the styled glassmorphic WIP placeholder component. File: `frontend/src/components/WIPPlaceholder.tsx`
-- [ ] T012 [P] [US1] Create the page component for WIP routes. File: `frontend/src/pages/WIPPage.tsx`
-- [ ] T013 [US1] Create the dashboard layout grid rendering the 12 cards with appropriate icons. File: `frontend/src/components/DashboardGrid.tsx`
-- [ ] T014 [US1] Set up Vite React Router paths for dashboard and placeholder sub-pages. File: `frontend/src/App.tsx`
+- [X] T011 [P] [US1] Create the styled glassmorphic WIP placeholder component. File: `frontend/src/components/WIPPlaceholder.tsx`
+- [X] T012 [P] [US1] Create the page component for WIP routes. File: `frontend/src/pages/WIPPage.tsx`
+- [X] T013 [US1] Create the dashboard layout grid rendering the 12 cards with appropriate icons. File: `frontend/src/components/DashboardGrid.tsx`
+- [X] T014 [US1] Set up Vite React Router paths for dashboard and placeholder sub-pages. File: `frontend/src/App.tsx`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently.
 
@@ -73,9 +73,9 @@
 
 ### Implementation for User Story 2
 
-- [ ] T015 [US2] Create the account switcher selector widget in the dashboard header. File: `frontend/src/components/AccountSwitcher.tsx`
-- [ ] T016 [US2] Store active account state in localStorage and update API service client. File: `frontend/src/services/api.ts`
-- [ ] T017 [US2] Integrate the switcher component into the root application page header. File: `frontend/src/App.tsx`
+- [X] T015 [US2] Create the account switcher selector widget in the dashboard header. File: `frontend/src/components/AccountSwitcher.tsx`
+- [X] T016 [US2] Store active account state in localStorage and update API service client. File: `frontend/src/services/api.ts`
+- [X] T017 [US2] Integrate the switcher component into the root application page header. File: `frontend/src/App.tsx`
 
 **Checkpoint**: At this point, switching accounts updates local context and endpoint headers.
 
@@ -89,11 +89,11 @@
 
 ### Implementation for User Story 3
 
-- [ ] T018 [P] [US3] Create the Pydantic schemas for account settings. File: `backend/src/api/routers/accounts.py`
-- [ ] T019 [US3] Implement DB CRUD methods to get/update settings in `accounts_config` collection. File: `backend/src/api/routers/accounts.py`
-- [ ] T020 [US3] Register the accounts controller router in main server factory. File: `backend/src/main.py`
-- [ ] T021 [US3] Build the Customization Panel configuration dialog UI in React. File: `frontend/src/components/CustomizationPanel.tsx`
-- [ ] T022 [US3] Bind Customization Panel settings updates with backend API and local dashboard layout state. File: `frontend/src/pages/Dashboard.tsx`
+- [X] T018 [P] [US3] Create the Pydantic schemas for account settings. File: `backend/src/api/routers/accounts.py`
+- [X] T019 [US3] Implement DB CRUD methods to get/update settings in `accounts_config` collection. File: `backend/src/api/routers/accounts.py`
+- [X] T020 [US3] Register the accounts controller router in main server factory. File: `backend/src/main.py`
+- [X] T021 [US3] Build the Customization Panel configuration dialog UI in React. File: `frontend/src/components/CustomizationPanel.tsx`
+- [X] T022 [US3] Bind Customization Panel settings updates with backend API and local dashboard layout state. File: `frontend/src/pages/Dashboard.tsx`
 
 **Checkpoint**: Users can customize cards shown on their screen, persisting choices to DB.
 
@@ -107,8 +107,8 @@
 
 ### Implementation for User Story 4
 
-- [ ] T023 [US4] Implement database migration queries in configuration update endpoint. File: `backend/src/api/routers/accounts.py`
-- [ ] T024 [US4] Add custom transition configuration prompt/dialog to visibility toggle screen. File: `frontend/src/components/CustomizationPanel.tsx`
+- [X] T023 [US4] Implement database migration queries in configuration update endpoint. File: `backend/src/api/routers/accounts.py`
+- [X] T024 [US4] Add custom transition configuration prompt/dialog to visibility toggle screen. File: `frontend/src/components/CustomizationPanel.tsx`
 
 **Checkpoint**: Data isolation settings dynamically migrate existing document structures seamlessly.
 
@@ -118,8 +118,8 @@
 
 **Purpose**: General refinements, documentation, and end-to-end user validation.
 
-- [ ] T025 [P] Document Docker Swarm stack deploying steps. File: `README.md`
-- [ ] T026 Verify all scenarios and data transition behaviors using quickstart guide. File: `specs/001-main-dashboard/quickstart.md`
+- [X] T025 [P] Document Docker Swarm stack deploying steps. File: `README.md`
+- [X] T026 Verify all scenarios and data transition behaviors using quickstart guide. File: `specs/001-main-dashboard/quickstart.md`
 
 ---
 

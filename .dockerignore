@@ -1,0 +1,15 @@
+# Docker ignore rules
+node_modules/
+.git/
+.dockerignore
+*.log*
+.env
+.env.*
+coverage/
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+frontend/dist/
+backend/dist/

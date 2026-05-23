@@ -1,0 +1,32 @@
+services:
+  backend:
+    image: amontoa-backend:latest
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    environment:
+      - MONGODB_URI=${MONGODB_URI}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - amontoa-network
+    restart: unless-stopped
+
+  frontend:
+    image: amontoa-frontend:latest
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "${FRONTEND_PORT:-3000}:80"
+    networks:
+      - amontoa-network
+    restart: unless-stopped
+    depends_on:
+      - backend
+
+networks:
+  amontoa-network:
+    driver: bridge
