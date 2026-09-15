@@ -1,4 +1,22 @@
 services:
+  mongodb:
+    image: mongo:7.0
+    restart: unless-stopped
+    ports:
+      - "${MONGODB_PORT:-27017}:27017"
+    environment:
+      - MONGO_INITDB_DATABASE=amotoa
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - amontoa-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
   backend:
     image: amontoa-backend:latest
     build:
@@ -7,12 +25,15 @@ services:
     ports:
       - "${BACKEND_PORT:-8000}:8000"
     environment:
-      - MONGODB_URI=${MONGODB_URI}
+      - MONGODB_URI=${MONGODB_URI:-mongodb://mongodb:27017/amotoa}
     extra_hosts:
       - "host.docker.internal:host-gateway"
     networks:
       - amontoa-network
     restart: unless-stopped
+    depends_on:
+      mongodb:
+        condition: service_healthy
 
   frontend:
     image: amontoa-frontend:latest
@@ -26,6 +47,10 @@ services:
     restart: unless-stopped
     depends_on:
       - backend
+
+volumes:
+  mongodb_data:
+    driver: local
 
 networks:
   amontoa-network:
