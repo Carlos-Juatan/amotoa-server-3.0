@@ -3,7 +3,8 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from src.core.config import settings
-from src.core.database import init_db, close_db
+from src.core.database import init_db, close_db, get_database
+from src.core.scheduler import start_scheduler, stop_scheduler
 from src.api.routers.accounts import router as accounts_router
 from src.api.routers.media import router as media_router
 from src.api.routers.progress import router as progress_router
@@ -20,10 +21,14 @@ async def lifespan(app: FastAPI):
     # Startup: Establish database client connection
     try:
         await init_db()
+        # Start background sync schedulers once the DB is ready
+        db = get_database()
+        await start_scheduler(db)
     except Exception as e:
-        logger.error(f"Failed to connect to MongoDB: {e}")
+        logger.error(f"Failed during startup: {e}")
     yield
-    # Shutdown: Close database connection
+    # Shutdown: Cancel schedulers, then close database connection
+    await stop_scheduler()
     await close_db()
 
 def create_app() -> FastAPI:

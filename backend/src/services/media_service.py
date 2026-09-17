@@ -1,6 +1,13 @@
-from typing import List, Optional
+import logging
+from datetime import datetime, timezone
+from typing import Any, Dict, List, Optional, Tuple
+
 from motor.motor_asyncio import AsyncIOMotorDatabase
+
 from src.api.schemas.media import MediaCardDTO, MediaType
+from src.services.jikan_client import JikanClient
+
+logger = logging.getLogger(__name__)
 
 class MediaService:
     def __init__(self, db: AsyncIOMotorDatabase):
@@ -125,4 +132,214 @@ class MediaService:
 
         return media
 
+    # ------------------------------------------------------------------
+    # US3: Jikan sync helpers
+    # ------------------------------------------------------------------
 
+    @staticmethod
+    def _map_jikan_to_media(raw: Dict[str, Any], media_type: str) -> Dict[str, Any]:
+        """
+        Normalise a raw Jikan API object into the internal media document schema.
+
+        Args:
+            raw:        Raw dict from Jikan API (anime or manga endpoint).
+            media_type: 'anime', 'manga', or 'light_novel'.
+
+        Returns:
+            Dict ready to be inserted into the `media` collection.
+        """
+        images = raw.get("images", {})
+        webp = images.get("webp", {})
+        jpg = images.get("jpg", {})
+        cover_url: str = (
+            webp.get("large_image_url")
+            or jpg.get("large_image_url")
+            or webp.get("image_url")
+            or jpg.get("image_url")
+            or ""
+        )
+
+        # Relations: filter for direct lineage types only
+        raw_relations: List[Dict[str, Any]] = raw.get("relations", [])
+        relations: List[Dict[str, Any]] = []
+        lineage_types = {"Sequel", "Prequel", "Alternative version", "Parent story"}
+        for rel in raw_relations:
+            rel_type = rel.get("relation", "")
+            for entry in rel.get("entry", []):
+                if rel_type in lineage_types:
+                    relations.append({
+                        "mal_id": entry.get("mal_id"),
+                        "type": entry.get("type", media_type),
+                        "relation_type": rel_type,
+                        "title": entry.get("name", ""),
+                    })
+
+        # Published status mapping
+        status_raw: str = raw.get("status", "")
+        status_map = {
+            "Currently Airing": "Currently Airing",
+            "Finished Airing": "Finished",
+            "Not yet aired": "Not yet aired",
+            "Publishing": "Publishing",
+            "Finished": "Finished",
+            "Discontinued": "Finished",
+            "On Hiatus": "Finished",
+        }
+        published_status: str = status_map.get(status_raw, "Finished")
+
+        # Genres: combine genres + themes tags
+        genres: List[str] = [g["name"] for g in raw.get("genres", [])]
+        genres += [t["name"] for t in raw.get("themes", [])]
+
+        now = datetime.now(timezone.utc)
+
+        return {
+            "mal_id": raw["mal_id"],
+            "type": media_type,
+            "title_japanese": raw.get("title_japanese") or raw.get("title") or "",
+            "title_english": raw.get("title_english"),
+            "title_default": raw.get("title") or "",
+            "synopsis": raw.get("synopsis"),
+            "cover_image_url": cover_url,
+            "gallery_image_urls": [],
+            "published_status": published_status,
+            "total_units": raw.get("episodes") or raw.get("chapters"),
+            "season": raw.get("season"),
+            "year": raw.get("year") or (raw.get("aired", {}) or {}).get("prop", {}).get("from", {}).get("year"),
+            "genres": genres,
+            "score_public": raw.get("score"),
+            "franchise_root_id": None,
+            "relations": relations,
+            "created_at": now,
+            "updated_at": now,
+        }
+
+    async def sync_seasonal_anime(
+        self,
+        year: int,
+        season: str,
+        jikan: Optional[JikanClient] = None,
+    ) -> Dict[str, int]:
+        """
+        Sync a specific anime season from Jikan into the local catalog.
+
+        Implements the Ignore & Skip policy:
+        - Existing mal_ids are skipped entirely — user_progress is untouched.
+        - New items are inserted.
+
+        Args:
+            year:   Season year (e.g. 2024).
+            season: Season name: "winter", "spring", "summer", or "fall".
+            jikan:  Optional pre-existing JikanClient (used in tests / batch worker).
+
+        Returns:
+            Summary dict: {"imported": int, "skipped": int, "failed": int}.
+        """
+        summary: Dict[str, int] = {"imported": 0, "skipped": 0, "failed": 0}
+
+        async def _run(client: JikanClient) -> None:
+            raw_items = await client.get_seasonal_anime(year, season)
+            logger.info(
+                "Seasonal sync %s/%s: %d items fetched from Jikan.", year, season, len(raw_items)
+            )
+            for raw in raw_items:
+                mal_id = raw.get("mal_id")
+                if not mal_id:
+                    summary["failed"] += 1
+                    continue
+                try:
+                    existing = await self.db["media"].find_one({"mal_id": mal_id}, {"_id": 1})
+                    if existing:
+                        logger.debug("Skipping existing anime mal_id=%d.", mal_id)
+                        summary["skipped"] += 1
+                        continue
+                    doc = self._map_jikan_to_media(raw, "anime")
+                    await self.db["media"].insert_one(doc)
+                    logger.debug("Imported anime mal_id=%d (%s).", mal_id, doc.get("title_default"))
+                    summary["imported"] += 1
+                except Exception as exc:
+                    logger.error("Failed to import anime mal_id=%d: %s", mal_id, exc)
+                    summary["failed"] += 1
+
+        if jikan is not None:
+            await _run(jikan)
+        else:
+            async with JikanClient() as client:
+                await _run(client)
+
+        logger.info(
+            "Seasonal anime sync %s/%s complete — imported=%d, skipped=%d, failed=%d.",
+            year, season, summary["imported"], summary["skipped"], summary["failed"],
+        )
+        return summary
+
+    async def sync_manga_ln(
+        self,
+        media_type: str,
+        jikan: Optional[JikanClient] = None,
+    ) -> Dict[str, int]:
+        """
+        Sync currently publishing manga/light novels from Jikan into the local catalog.
+
+        Paginates through all publishing titles. Implements the same Ignore & Skip
+        policy: existing entries are skipped; new ones are inserted.
+
+        Args:
+            media_type: 'manga' or 'light_novel'.
+            jikan:      Optional pre-existing JikanClient.
+
+        Returns:
+            Summary dict: {"imported": int, "skipped": int, "failed": int}.
+        """
+        if media_type not in ("manga", "light_novel"):
+            raise ValueError(
+                f"sync_manga_ln only accepts 'manga' or 'light_novel', got: {media_type}"
+            )
+
+        summary: Dict[str, int] = {"imported": 0, "skipped": 0, "failed": 0}
+
+        async def _run(client: JikanClient) -> None:
+            page = 1
+            while True:
+                data = await client.get_manga_publishing(page=page)
+                items: List[Dict[str, Any]] = data.get("data", [])
+                if not items:
+                    break
+
+                for raw in items:
+                    mal_id = raw.get("mal_id")
+                    if not mal_id:
+                        summary["failed"] += 1
+                        continue
+                    try:
+                        existing = await self.db["media"].find_one({"mal_id": mal_id}, {"_id": 1})
+                        if existing:
+                            logger.debug("Skipping existing %s mal_id=%d.", media_type, mal_id)
+                            summary["skipped"] += 1
+                            continue
+                        doc = self._map_jikan_to_media(raw, media_type)
+                        await self.db["media"].insert_one(doc)
+                        logger.debug(
+                            "Imported %s mal_id=%d (%s).", media_type, mal_id, doc.get("title_default")
+                        )
+                        summary["imported"] += 1
+                    except Exception as exc:
+                        logger.error("Failed to import %s mal_id=%d: %s", media_type, mal_id, exc)
+                        summary["failed"] += 1
+
+                pagination = data.get("pagination", {})
+                if not pagination.get("has_next_page", False):
+                    break
+                page += 1
+
+        if jikan is not None:
+            await _run(jikan)
+        else:
+            async with JikanClient() as client:
+                await _run(client)
+
+        logger.info(
+            "%s periodic sync complete — imported=%d, skipped=%d, failed=%d.",
+            media_type, summary["imported"], summary["skipped"], summary["failed"],
+        )
+        return summary

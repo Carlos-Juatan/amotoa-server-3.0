@@ -155,14 +155,14 @@ description: "Task list for Plataforma Pessoal de Gestão de Mídias (Amontoa V3
 
 ### Tests for User Story 3
 
-- [ ] T041 [P] [US3] Create unit tests for JikanClient token bucket rate limiting and retry backoff in `backend/tests/test_jikan_client.py`
+- [x] T041 [P] [US3] Create unit tests for JikanClient token bucket rate limiting and retry backoff in `backend/tests/test_jikan_client.py`
 
 ### Implementation for User Story 3
 
-- [ ] T042 [P] [US3] Implement JikanClient with httpx AsyncClient, token bucket dispatcher (2 req/s), and exponential backoff retry in `backend/src/services/jikan_client.py`
-- [ ] T043 [US3] Implement seasonal sync for anime and periodic sync for manga/LN with Ignore & Skip policy in `backend/src/services/media_service.py`
-- [ ] T044 [US3] Implement manual sync trigger endpoint POST /api/media/sync/{media_type} in `backend/src/api/routers/media.py`
-- [ ] T045 [US3] Configure background periodic sync scheduler using MANGA_LN_SYNC_INTERVAL in `backend/src/core/scheduler.py`
+- [x] T042 [P] [US3] Implement JikanClient with httpx AsyncClient, token bucket dispatcher (2 req/s), and exponential backoff retry in `backend/src/services/jikan_client.py`
+- [x] T043 [US3] Implement seasonal sync for anime and periodic sync for manga/LN with Ignore & Skip policy in `backend/src/services/media_service.py`
+- [x] T044 [US3] Implement manual sync trigger endpoint POST /api/media/sync/{media_type} in `backend/src/api/routers/media.py`
+- [x] T045 [US3] Configure background periodic sync scheduler using MANGA_LN_SYNC_INTERVAL in `backend/src/core/scheduler.py`
 
 **Checkpoint**: Automated and resilient upstream sync keeps catalog populated without user intervention.
 

@@ -1,5 +1,5 @@
-from fastapi import APIRouter, Header, Depends, Query, HTTPException
-from typing import List, Optional
+from fastapi import APIRouter, Header, Depends, Query, HTTPException, BackgroundTasks
+from typing import Dict, List, Optional
 from src.core.database import get_database
 from src.api.schemas.media import MediaCardDTO, MediaDetailDTO, MediaType
 from src.services.media_service import MediaService
@@ -52,3 +52,55 @@ async def get_media_detail(
         raise HTTPException(status_code=404, detail=f"{media_type} with mal_id={mal_id} not found.")
     return detail
 
+
+@router.post("/sync/{media_type}", response_model=Dict[str, int], tags=["sync"])
+async def trigger_sync(
+    media_type: MediaType,
+    year: Optional[int] = Query(None, description="Season year (anime only, e.g. 2024)"),
+    season: Optional[str] = Query(
+        None,
+        description="Season name for anime: winter | spring | summer | fall",
+    ),
+    media_service: MediaService = Depends(get_media_service),
+):
+    """
+    Manually trigger a catalog sync from Jikan API v4.
+
+    - **Anime**: Provide `year` and `season` (e.g. `?year=2024&season=winter`) to sync
+      that specific seasonal batch. If omitted, defaults to the current calendar season.
+    - **Manga / Light Novel**: Syncs all currently publishing titles (paginated). `year`
+      and `season` are ignored.
+
+    Returns a summary with counts of `imported`, `skipped`, and `failed` items.
+    """
+    from datetime import date
+
+    if media_type == MediaType.ANIME:
+        # Determine year/season defaults
+        if year is None or season is None:
+            today = date.today()
+            year = year or today.year
+            if season is None:
+                month = today.month
+                if month in (1, 2, 3):
+                    season = "winter"
+                elif month in (4, 5, 6):
+                    season = "spring"
+                elif month in (7, 8, 9):
+                    season = "summer"
+                else:
+                    season = "fall"
+
+        valid_seasons = {"winter", "spring", "summer", "fall"}
+        if season not in valid_seasons:
+            raise HTTPException(
+                status_code=422,
+                detail=f"Invalid season '{season}'. Must be one of: {sorted(valid_seasons)}",
+            )
+
+        summary = await media_service.sync_seasonal_anime(year=year, season=season)
+    else:
+        # manga or light_novel
+        summary = await media_service.sync_manga_ln(media_type=media_type.value)
+
+    return summary
