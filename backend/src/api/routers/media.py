@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Header, Depends, Query, HTTPException, BackgroundTasks
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
+from pydantic import BaseModel
 from src.core.database import get_database
 from src.api.schemas.media import MediaCardDTO, MediaDetailDTO, MediaType
 from src.services.media_service import MediaService
@@ -8,6 +9,34 @@ router = APIRouter(prefix="/api/media", tags=["media"])
 
 def get_media_service(db = Depends(get_database)) -> MediaService:
     return MediaService(db)
+
+@router.get("/external/search", response_model=List[Dict[str, Any]])
+async def search_external_media(
+    media_type: MediaType = Query(..., description="Type of media (anime, manga, light_novel)"),
+    q: str = Query(..., min_length=3, description="Search query"),
+    media_service: MediaService = Depends(get_media_service)
+):
+    """Search Jikan API for media not in the local catalog."""
+    # Jikan's search is unified for manga/light_novel under 'manga'
+    jikan_type = "anime" if media_type == MediaType.ANIME else "manga"
+    results = await media_service.search_external(media_type=jikan_type, query=q)
+    return results
+
+class ImportRequest(BaseModel):
+    mal_id: int
+    media_type: MediaType
+
+@router.post("/external/import", response_model=Dict[str, Any])
+async def import_external_media(
+    request: ImportRequest,
+    media_service: MediaService = Depends(get_media_service)
+):
+    """Import a specific media item from Jikan into the local catalog."""
+    jikan_type = "anime" if request.media_type == MediaType.ANIME else "manga"
+    result = await media_service.import_external(media_type=jikan_type, mal_id=request.mal_id)
+    if not result:
+        raise HTTPException(status_code=404, detail="Media not found on Jikan API.")
+    return result
 
 @router.get("/{media_type}", response_model=List[MediaCardDTO])
 async def list_media(

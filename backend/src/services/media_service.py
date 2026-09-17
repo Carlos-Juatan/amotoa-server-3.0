@@ -48,11 +48,34 @@ class MediaService:
                 return [] # No progress matching this status, so no media to return
             media_query["mal_id"] = {"$in": list(progress_map.keys())}
             
+        # Apply search and filtering
+        if search:
+            media_query["$or"] = [
+                {"title_japanese": {"$regex": search, "$options": "i"}},
+                {"title_english": {"$regex": search, "$options": "i"}},
+                {"title_default": {"$regex": search, "$options": "i"}}
+            ]
+        if genre:
+            media_query["genres"] = {"$in": [genre]}
+        if year is not None:
+            media_query["year"] = year
+        if letter:
+            # First character regex
+            media_query["title_default"] = {"$regex": f"^{letter}", "$options": "i"}
+
         # Execute media query
         media_cursor = self.db["media"].find(media_query)
         
         # Sort logic
-        sort_field = "title_japanese" if sort_by == "title" else sort_by
+        if sort_by in ("title", "title_default"):
+            sort_field = "title_default"
+        elif sort_by == "score_public":
+            sort_field = "score_public"
+        elif sort_by == "year":
+            sort_field = "year"
+        else:
+            sort_field = "title_default"
+
         sort_direction = 1 if order == "asc" else -1
         media_cursor.sort(sort_field, sort_direction)
         
@@ -73,6 +96,13 @@ class MediaService:
             media["id"] = str(media["_id"])
             
             results.append(media)
+            
+        # Post-process sorting if sort_by requires user_progress fields like personal_score
+        if sort_by == "personal_score":
+            def get_personal_score(item: dict) -> float:
+                p = item.get("user_progress")
+                return float(p.get("personal_score") or 0) if p else 0.0
+            results.sort(key=get_personal_score, reverse=(order == "desc"))
             
         return results
 
@@ -343,3 +373,42 @@ class MediaService:
             media_type, summary["imported"], summary["skipped"], summary["failed"],
         )
         return summary
+
+    async def search_external(self, media_type: str, query: str) -> List[Dict[str, Any]]:
+        """Search Jikan API for media not in our catalog."""
+        async with JikanClient() as client:
+            if media_type == "anime":
+                raw_results = await client.search_anime(query)
+            else:
+                raw_results = await client.search_manga(query)
+                
+            results = []
+            for raw in raw_results.get("data", []):
+                doc = self._map_jikan_to_media(raw, media_type)
+                # Convert datetime to ISO format strings for JSON serialization if needed,
+                # but Pydantic can handle datetime objects.
+                # However we need to mock the `id` field since they aren't in DB yet.
+                doc["id"] = f"external_{doc['mal_id']}"
+                results.append(doc)
+            return results
+
+    async def import_external(self, media_type: str, mal_id: int) -> Optional[Dict[str, Any]]:
+        """Import a specific media item from Jikan by its ID."""
+        existing = await self.db["media"].find_one({"mal_id": mal_id, "type": media_type})
+        if existing:
+            existing.pop("_id", None)
+            return existing
+            
+        async with JikanClient() as client:
+            if media_type == "anime":
+                raw = await client.get_anime_detail(mal_id)
+            else:
+                raw = await client.get_manga_detail(mal_id)
+                
+            if not raw:
+                return None
+                
+            doc = self._map_jikan_to_media(raw, media_type)
+            await self.db["media"].insert_one(doc)
+            doc.pop("_id", None)
+            return doc

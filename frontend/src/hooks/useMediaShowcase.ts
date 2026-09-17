@@ -7,13 +7,24 @@ export interface ShowcaseData {
   watching: MediaCardData[];
   favorites: MediaCardData[];
   onHold: MediaCardData[];
+  searchResults: MediaCardData[];
 }
 
-export const useMediaShowcase = (config: MediaConfig) => {
+export interface ShowcaseFilters {
+  search?: string;
+  genre?: string;
+  year?: number;
+  letter?: string;
+  sort_by?: string;
+  order?: 'asc' | 'desc';
+}
+
+export const useMediaShowcase = (config: MediaConfig, filters?: ShowcaseFilters) => {
   const [data, setData] = useState<ShowcaseData>({
     watching: [],
     favorites: [],
-    onHold: []
+    onHold: [],
+    searchResults: []
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -26,19 +37,40 @@ export const useMediaShowcase = (config: MediaConfig) => {
       setError(null);
       
       try {
-        // Fetch parallel requests for each status group
-        const [watchingRes, favoritesRes, onHoldRes] = await Promise.all([
-          api.get(config.apiPath, { params: { status_group: 'watching' } }),
-          api.get(config.apiPath, { params: { status_group: 'favorites' } }),
-          api.get(config.apiPath, { params: { status_group: 'on_hold' } })
-        ]);
+        const hasFilters = filters && (filters.search || filters.genre || filters.year || filters.letter);
+        
+        if (hasFilters) {
+          // If filtering/searching, we want all matching catalog items
+          const res = await api.get(config.apiPath, { params: { ...filters } });
+          if (isMounted) {
+            setData({
+              watching: [],
+              favorites: [],
+              onHold: [],
+              searchResults: res.data
+            });
+          }
+        } else {
+          // Default showcase view
+          const sortParams = {
+            sort_by: filters?.sort_by || 'title',
+            order: filters?.order || 'asc'
+          };
+          
+          const [watchingRes, favoritesRes, onHoldRes] = await Promise.all([
+            api.get(config.apiPath, { params: { status_group: 'watching', ...sortParams } }),
+            api.get(config.apiPath, { params: { status_group: 'favorites', ...sortParams } }),
+            api.get(config.apiPath, { params: { status_group: 'on_hold', ...sortParams } })
+          ]);
 
-        if (isMounted) {
-          setData({
-            watching: watchingRes.data,
-            favorites: favoritesRes.data,
-            onHold: onHoldRes.data
-          });
+          if (isMounted) {
+            setData({
+              watching: watchingRes.data,
+              favorites: favoritesRes.data,
+              onHold: onHoldRes.data,
+              searchResults: []
+            });
+          }
         }
       } catch (err: any) {
         if (isMounted) {
@@ -56,7 +88,7 @@ export const useMediaShowcase = (config: MediaConfig) => {
     return () => {
       isMounted = false;
     };
-  }, [config.apiPath]);
+  }, [config.apiPath, filters?.search, filters?.genre, filters?.year, filters?.letter, filters?.sort_by, filters?.order]);
 
   return { data, loading, error };
 };

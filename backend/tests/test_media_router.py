@@ -185,3 +185,124 @@ async def test_get_media_detail_no_progress_returns_null_progress(async_client: 
     data = response.json()
     assert data["mal_id"] == 30
     assert data["user_progress"] is None
+
+
+# ─── US2: Catalog Search, Filters, and External Import ────────────────────────
+
+@pytest.mark.asyncio
+async def test_get_media_catalog_filters(async_client: AsyncClient, setup_db):
+    """GET /api/media/anime?search=Hero&genre=Action&year=2016 returns filtered results."""
+    now = datetime.now(timezone.utc)
+    await setup_db["media"].insert_many([
+        {
+            "mal_id": 40,
+            "type": "anime",
+            "title_japanese": "僕のヒーローアカデミア",
+            "title_english": "My Hero Academia",
+            "title_default": "Boku no Hero Academia",
+            "cover_image_url": "http://cdn.example.com/mha.jpg",
+            "published_status": "Finished",
+            "total_units": 13,
+            "score_public": 8.0,
+            "year": 2016,
+            "genres": ["Action", "Superhero"],
+            "created_at": now,
+            "updated_at": now,
+        },
+        {
+            "mal_id": 41,
+            "type": "anime",
+            "title_japanese": "Test Anime",
+            "title_default": "Test",
+            "cover_image_url": "http://cdn.example.com/test.jpg",
+            "published_status": "Finished",
+            "total_units": 12,
+            "score_public": 7.0,
+            "year": 2020,
+            "genres": ["Comedy"],
+            "created_at": now,
+            "updated_at": now,
+        }
+    ])
+
+    response = await async_client.get(
+        "/api/media/anime?search=Hero&genre=Action&year=2016",
+        headers={"X-Active-Account": "car-j-home"}
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data) == 1
+    assert data[0]["mal_id"] == 40
+
+
+@pytest.mark.asyncio
+async def test_search_external_media(async_client: AsyncClient, setup_db, monkeypatch):
+    """GET /api/media/external/search returns mocked external results."""
+    from src.services.jikan_client import JikanClient
+    
+    async def mock_search_anime(self, query):
+        return {
+            "data": [
+                {
+                    "mal_id": 9999,
+                    "title": "Mocked External Anime",
+                    "images": {"jpg": {"image_url": "http://cdn.example.com/mock.jpg"}},
+                    "status": "Finished Airing",
+                    "episodes": 12,
+                    "year": 2025,
+                    "genres": [{"name": "Sci-Fi"}],
+                    "score": 9.9
+                }
+            ]
+        }
+        
+    monkeypatch.setattr(JikanClient, "search_anime", mock_search_anime)
+
+    response = await async_client.get(
+        "/api/media/external/search?media_type=anime&q=Mocked",
+        headers={"X-Active-Account": "car-j-home"}
+    )
+    if response.status_code != 200:
+        print(response.json())
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data) == 1
+    assert data[0]["mal_id"] == 9999
+    assert data[0]["title_default"] == "Mocked External Anime"
+    assert data[0]["year"] == 2025
+
+
+@pytest.mark.asyncio
+async def test_import_external_media(async_client: AsyncClient, setup_db, monkeypatch):
+    """POST /api/media/external/import imports an item from Jikan to local DB."""
+    from src.services.jikan_client import JikanClient
+    
+    async def mock_get_anime_detail(self, mal_id):
+        return {
+            "mal_id": mal_id,
+            "title": "Imported Anime",
+            "images": {"jpg": {"image_url": "http://cdn.example.com/import.jpg"}},
+            "status": "Finished Airing",
+            "episodes": 24,
+            "year": 2021,
+            "genres": [{"name": "Drama"}],
+            "score": 8.5
+        }
+        
+    monkeypatch.setattr(JikanClient, "get_anime_detail", mock_get_anime_detail)
+
+    response = await async_client.post(
+        "/api/media/external/import",
+        json={"media_type": "anime", "mal_id": 8888},
+        headers={"X-Active-Account": "car-j-home"}
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["mal_id"] == 8888
+    assert data["title_default"] == "Imported Anime"
+    
+    # Verify it is in the database
+    doc = await setup_db["media"].find_one({"mal_id": 8888})
+    assert doc is not None
+    assert doc["title_default"] == "Imported Anime"
+

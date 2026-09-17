@@ -176,15 +176,15 @@ description: "Task list for Plataforma Pessoal de Gestão de Mídias (Amontoa V3
 
 ### Tests for User Story 2
 
-- [ ] T046 [P] [US2] Add tests for catalog search, filtering, and external import endpoints in `backend/tests/test_media_router.py`
+- [x] T046 [P] [US2] Add tests for catalog search, filtering, and external import endpoints in `backend/tests/test_media_router.py`
 
 ### Implementation for User Story 2
 
-- [ ] T047 [US2] Implement multi-attribute filtering and text search query builders in `backend/src/services/media_service.py`
-- [ ] T048 [US2] Implement GET /api/media/external/search and POST /api/media/external/import in `backend/src/api/routers/media.py`
-- [ ] T049 [P] [US2] Create SearchBar component with local results and external Jikan search fallback trigger in `frontend/src/components/SearchBar.tsx`
-- [ ] T050 [P] [US2] Create CatalogFilterBar component with genre, year, initial letter, and sorting options in `frontend/src/components/CatalogFilterBar.tsx`
-- [ ] T051 [US2] Integrate SearchBar and CatalogFilterBar into `frontend/src/pages/MediaShowcasePage.tsx`
+- [x] T047 [US2] Implement multi-attribute filtering and text search query builders in `backend/src/services/media_service.py`
+- [x] T048 [US2] Implement GET /api/media/external/search and POST /api/media/external/import in `backend/src/api/routers/media.py`
+- [x] T049 [P] [US2] Create SearchBar component with local results and external Jikan search fallback trigger in `frontend/src/components/SearchBar.tsx`
+- [x] T050 [P] [US2] Create CatalogFilterBar component with genre, year, initial letter, and sorting options in `frontend/src/components/CatalogFilterBar.tsx`
+- [x] T051 [US2] Integrate SearchBar and CatalogFilterBar into `frontend/src/pages/MediaShowcasePage.tsx`
 
 **Checkpoint**: High-power search, filtering, and ad-hoc single media import are operational.
 
