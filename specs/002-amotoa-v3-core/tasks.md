@@ -112,14 +112,14 @@ description: "Task list for Plataforma Pessoal de Gestão de Mídias (Amontoa V3
 
 ### Tests for User Story 6
 
-- [ ] T030 [P] [US6] Add tests for progress, tags, links, and movie endpoints in `backend/tests/test_progress_router.py`
+- [x] T030 [P] [US6] Add tests for progress, tags, links, and movie endpoints in `backend/tests/test_progress_router.py`
 
 ### Implementation for User Story 6
 
-- [ ] T031 [P] [US6] Implement ProgressService methods for progress, scores, tags, external links, and movie watch toggles in `backend/src/services/progress_service.py`
-- [ ] T032 [US6] Implement progress update endpoints under /api/media/{media_type}/{mal_id}/ (PUT /progress, PUT /links, PUT /tags, POST /movies, PATCH /movies/{movie_id}) in `backend/src/api/routers/progress.py`
-- [ ] T033 [P] [US6] Create FranchiseMoviesList component for anime-exclusive movie management in `frontend/src/components/FranchiseMoviesList.tsx`
-- [ ] T034 [US6] Implement progress tracker widgets, score inputs, tag management, and external links editor in `frontend/src/pages/MediaDetailPage.tsx`
+- [x] T031 [P] [US6] Implement ProgressService methods for progress, scores, tags, external links, and movie watch toggles in `backend/src/services/progress_service.py`
+- [x] T032 [US6] Implement progress update endpoints under /api/media/{media_type}/{mal_id}/ (PUT /progress, PUT /links, PUT /tags, POST /movies, PATCH /movies/{movie_id}) in `backend/src/api/routers/progress.py`
+- [x] T033 [P] [US6] Create FranchiseMoviesList component for anime-exclusive movie management in `frontend/src/components/FranchiseMoviesList.tsx`
+- [x] T034 [US6] Implement progress tracker widgets, score inputs, tag management, and external links editor in `frontend/src/pages/MediaDetailPage.tsx`
 
 **Checkpoint**: At this point, full catalog interaction and per-account tracking persistence is operational.
 
@@ -133,7 +133,7 @@ description: "Task list for Plataforma Pessoal de Gestão de Mídias (Amontoa V3
 
 ### Tests for User Story 7
 
-- [ ] T035 [P] [US7] Add tests for active progress filtering and quick increment in `backend/tests/test_progress_router.py`
+- [x] T035 [P] [US7] Add tests for active progress filtering and quick increment in `backend/tests/test_progress_router.py`
 
 ### Implementation for User Story 7
 
