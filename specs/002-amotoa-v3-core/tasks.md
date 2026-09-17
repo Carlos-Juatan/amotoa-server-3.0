@@ -29,9 +29,9 @@ description: "Task list for Plataforma Pessoal de Gestão de Mídias (Amontoa V3
 
 **Purpose**: Project initialization, dependency management, and core configuration
 
-- [ ] T001 Update backend dependencies (fastapi, motor, pydantic, httpx, pytest, pytest-asyncio) in `backend/requirements.txt`
-- [ ] T002 [P] Verify and update frontend dependencies (lucide-react, clsx, tailwindcss) in `frontend/package.json`
-- [ ] T003 [P] Setup environment variable definitions and configuration in `backend/src/core/config.py`
+- [x] T001 Update backend dependencies (fastapi, motor, pydantic, httpx, pytest, pytest-asyncio) in `backend/requirements.txt`
+- [x] T002 [P] Verify and update frontend dependencies (lucide-react, clsx, tailwindcss) in `frontend/package.json`
+- [x] T003 [P] Setup environment variable definitions and configuration in `backend/src/core/config.py`
 
 ---
 
