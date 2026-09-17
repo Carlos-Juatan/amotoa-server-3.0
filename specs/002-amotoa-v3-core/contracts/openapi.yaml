@@ -1,0 +1,707 @@
+openapi: 3.0.3
+info:
+  title: Amontoa V3.0 Media & Progress API
+  version: 1.0.0
+  description: Endpoints for media showcase, detail views, daily progress tracking, external Jikan integration, and batch import jobs.
+paths:
+  /api/media/{media_type}:
+    get:
+      summary: List media for showcase carousels and filtered catalog
+      parameters:
+        - name: media_type
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [anime, manga, light_novel]
+        - name: status_group
+          in: query
+          required: false
+          description: Filter by user tracking status (e.g. watching, favorites, on_hold, completed)
+          schema:
+            type: string
+        - name: search
+          in: query
+          required: false
+          description: Search term against Japanese, English, and Romaji titles
+          schema:
+            type: string
+        - name: genre
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: year
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: letter
+          in: query
+          required: false
+          description: Filter by initial letter
+          schema:
+            type: string
+        - name: sort_by
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [title, score_public, personal_score, year, updated_at]
+            default: title
+        - name: order
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: asc
+        - name: X-Active-Account
+          in: header
+          required: false
+          schema:
+            type: string
+            default: car-j-home
+      responses:
+        '200':
+          description: List of media items matching criteria
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MediaCardDTO'
+
+  /api/media/{media_type}/{mal_id}:
+    get:
+      summary: Retrieve full unified details of a media item
+      parameters:
+        - name: media_type
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [anime, manga, light_novel]
+        - name: mal_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: X-Active-Account
+          in: header
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Full media details with franchise relations and user tracking data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MediaDetailDTO'
+        '404':
+          description: Media item not found
+
+  /api/media/{media_type}/{mal_id}/progress:
+    put:
+      summary: Update user progress, status, score, or favorite state
+      parameters:
+        - name: media_type
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [anime, manga, light_novel]
+        - name: mal_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: X-Active-Account
+          in: header
+          required: false
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProgressRequest'
+      responses:
+        '200':
+          description: Updated user progress object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProgressDTO'
+
+  /api/media/{media_type}/{mal_id}/increment:
+    post:
+      summary: Fast +1 increment for active progress
+      parameters:
+        - name: media_type
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [anime, manga, light_novel]
+        - name: mal_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: X-Active-Account
+          in: header
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Incremented progress
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProgressDTO'
+
+  /api/media/{media_type}/{mal_id}/links:
+    put:
+      summary: Update external consumption links
+      parameters:
+        - name: media_type
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: mal_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: X-Active-Account
+          in: header
+          required: false
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/ExternalLink'
+      responses:
+        '200':
+          description: Updated links saved
+
+  /api/media/{media_type}/{mal_id}/tags:
+    put:
+      summary: Update user personal tags
+      parameters:
+        - name: media_type
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: mal_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: X-Active-Account
+          in: header
+          required: false
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tags:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: Updated tags saved
+
+  /api/media/{media_type}/{mal_id}/movies:
+    post:
+      summary: Add a franchise movie (Anime only)
+      parameters:
+        - name: media_type
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [anime]
+        - name: mal_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: X-Active-Account
+          in: header
+          required: false
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FranchiseMovieCreate'
+      responses:
+        '201':
+          description: Movie added to franchise list
+
+  /api/media/{media_type}/{mal_id}/movies/{movie_id}:
+    patch:
+      summary: Toggle movie watch status (Anime only)
+      parameters:
+        - name: media_type
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: mal_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: movie_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: X-Active-Account
+          in: header
+          required: false
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                watched:
+                  type: boolean
+      responses:
+        '200':
+          description: Movie watch status updated
+
+  /api/media/{media_type}/active-progress:
+    get:
+      summary: Retrieve active ongoing media for Daily Progress Module
+      parameters:
+        - name: media_type
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [anime, manga, light_novel]
+        - name: X-Active-Account
+          in: header
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Filtered list of active progress items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ActiveProgressItemDTO'
+
+  /api/media/external/search:
+    get:
+      summary: Query Jikan API directly for external catalog search
+      parameters:
+        - name: media_type
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [anime, manga, light_novel]
+        - name: query
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: External search results from Jikan
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ExternalSearchResultDTO'
+
+  /api/media/external/import:
+    post:
+      summary: Ingest a single media item from Jikan into local catalog
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [media_type, mal_id]
+              properties:
+                media_type:
+                  type: string
+                  enum: [anime, manga, light_novel]
+                mal_id:
+                  type: integer
+      responses:
+        '201':
+          description: Media ingested into local catalog
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MediaCardDTO'
+
+  /api/media/sync/{media_type}:
+    post:
+      summary: Trigger manual synchronization for new releases of a given media type
+      parameters:
+        - name: media_type
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [anime, manga, light_novel]
+      responses:
+        '200':
+          description: Synchronization finished successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  media_type:
+                    type: string
+                  synced_count:
+                    type: integer
+                  skipped_count:
+                    type: integer
+                  message:
+                    type: string
+        '429':
+          description: External API rate limit encountered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/batch-jobs:
+    get:
+      summary: List all historical batch import jobs
+      responses:
+        '200':
+          description: List of batch jobs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BatchImportJobDTO'
+    post:
+      summary: Start a new historical batch import job
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchImportCreateRequest'
+      responses:
+        '201':
+          description: Job created and running in background
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchImportJobDTO'
+
+  /api/batch-jobs/{job_id}/pause:
+    post:
+      summary: Pause a running batch import job
+      parameters:
+        - name: job_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Job paused
+
+  /api/batch-jobs/{job_id}/resume:
+    post:
+      summary: Resume a paused batch import job
+      parameters:
+        - name: job_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Job resumed
+
+  /api/admin/backups:
+    get:
+      summary: List recent daily database backups
+      responses:
+        '200':
+          description: List of backup archive files
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BackupEntryDTO'
+    post:
+      summary: Trigger manual compressed database backup
+      responses:
+        '201':
+          description: Backup generated successfully
+
+components:
+  schemas:
+    ExternalLink:
+      type: object
+      required: [label, url]
+      properties:
+        label:
+          type: string
+        url:
+          type: string
+
+    FranchiseMovieCreate:
+      type: object
+      required: [title]
+      properties:
+        title:
+          type: string
+        cover_image_url:
+          type: string
+        release_year:
+          type: integer
+
+    FranchiseMovieDTO:
+      type: object
+      properties:
+        movie_id:
+          type: string
+        title:
+          type: string
+        cover_image_url:
+          type: string
+        watched:
+          type: boolean
+        release_year:
+          type: integer
+
+    UserProgressDTO:
+      type: object
+      properties:
+        account_id:
+          type: string
+        media_mal_id:
+          type: integer
+        current_unit:
+          type: integer
+        status:
+          type: string
+        is_favorite:
+          type: boolean
+        personal_score:
+          type: integer
+        personal_tags:
+          type: array
+          items:
+            type: string
+        external_links:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExternalLink'
+        franchise_movies:
+          type: array
+          items:
+            $ref: '#/components/schemas/FranchiseMovieDTO'
+
+    UpdateProgressRequest:
+      type: object
+      properties:
+        current_unit:
+          type: integer
+        status:
+          type: string
+          enum: [watching, completed, on_hold, dropped, plan_to_watch]
+        is_favorite:
+          type: boolean
+        personal_score:
+          type: integer
+
+    MediaCardDTO:
+      type: object
+      properties:
+        mal_id:
+          type: integer
+        type:
+          type: string
+        title_japanese:
+          type: string
+          description: Primary title displayed with prominence
+        title_english:
+          type: string
+          description: Secondary title displayed below in smaller font
+        cover_image_url:
+          type: string
+        score_public:
+          type: number
+        total_units:
+          type: integer
+        published_status:
+          type: string
+        user_progress:
+          $ref: '#/components/schemas/UserProgressDTO'
+
+    MediaDetailDTO:
+      type: object
+      properties:
+        mal_id:
+          type: integer
+        type:
+          type: string
+        title_japanese:
+          type: string
+        title_english:
+          type: string
+        title_default:
+          type: string
+        synopsis:
+          type: string
+        cover_image_url:
+          type: string
+        gallery_image_urls:
+          type: array
+          items:
+            type: string
+        published_status:
+          type: string
+        total_units:
+          type: integer
+        season:
+          type: string
+        year:
+          type: integer
+        genres:
+          type: array
+          items:
+            type: string
+        score_public:
+          type: number
+        franchise_root_id:
+          type: integer
+        related_seasons:
+          type: array
+          items:
+            $ref: '#/components/schemas/MediaCardDTO'
+        user_progress:
+          $ref: '#/components/schemas/UserProgressDTO'
+
+    ActiveProgressItemDTO:
+      type: object
+      properties:
+        mal_id:
+          type: integer
+        type:
+          type: string
+        title_japanese:
+          type: string
+        title_english:
+          type: string
+        cover_image_url:
+          type: string
+        current_unit:
+          type: integer
+        total_units:
+          type: integer
+        external_links:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExternalLink'
+
+    ExternalSearchResultDTO:
+      type: object
+      properties:
+        mal_id:
+          type: integer
+        title_japanese:
+          type: string
+        title_english:
+          type: string
+        title_default:
+          type: string
+        type:
+          type: string
+        cover_image_url:
+          type: string
+        score_public:
+          type: number
+        synopsis:
+          type: string
+        is_imported:
+          type: boolean
+
+    BatchImportCreateRequest:
+      type: object
+      required: [media_type, year_start, year_end]
+      properties:
+        media_type:
+          type: string
+          enum: [anime, manga, light_novel]
+        year_start:
+          type: integer
+        year_end:
+          type: integer
+
+    BatchImportJobDTO:
+      type: object
+      properties:
+        job_id:
+          type: string
+        media_type:
+          type: string
+        year_start:
+          type: integer
+        year_end:
+          type: integer
+        status:
+          type: string
+        progress:
+          type: object
+        created_at:
+          type: string
+        updated_at:
+          type: string
+
+    BackupEntryDTO:
+      type: object
+      properties:
+        filename:
+          type: string
+        size_bytes:
+          type: integer
+        created_at:
+          type: string
