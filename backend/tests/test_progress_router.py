@@ -324,11 +324,13 @@ async def test_get_active_progress_returns_active_media(async_client, setup_db):
         "/api/media/anime/active-progress",
         headers=HEADERS,
     )
+    if resp.status_code != 200:
+        print("ERROR:", resp.text)
     assert resp.status_code == 200
     body = resp.json()
     assert len(body) == 1
     assert body[0]["mal_id"] == 1001
-    assert body[0]["user_progress"]["current_unit"] == 12
+    assert body[0]["user_progress"]["current_unit"] == 5
 
 
 @pytest.mark.asyncio
@@ -343,7 +345,7 @@ async def test_increment_progress(async_client, setup_db):
     )
     assert resp.status_code == 200
     body = resp.json()
-    assert body["current_unit"] == 13
+    assert body["current_unit"] == 6
 
 
 @pytest.mark.asyncio

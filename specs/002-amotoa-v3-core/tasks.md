@@ -137,11 +137,11 @@ description: "Task list for Plataforma Pessoal de Gestão de Mídias (Amontoa V3
 
 ### Implementation for User Story 7
 
-- [ ] T036 [P] [US7] Implement active progress querying and unit increment logic in `backend/src/services/progress_service.py`
-- [ ] T037 [US7] Implement GET /api/media/{media_type}/active-progress and POST /api/media/{media_type}/{mal_id}/increment in `backend/src/api/routers/progress.py`
-- [ ] T038 [P] [US7] Create DailyProgressCard component with +1 button, bounded dropdown selector, and external link action in `frontend/src/components/DailyProgressCard.tsx`
-- [ ] T039 [US7] Implement DailyProgressPage with active media list, empty state encouragement, and showcase shortcut in `frontend/src/pages/DailyProgressPage.tsx`
-- [ ] T040 [US7] Wire /:type/progress route to DailyProgressPage in `frontend/src/App.tsx`
+- [x] T036 [P] [US7] Implement active progress querying and unit increment logic in `backend/src/services/progress_service.py`
+- [x] T037 [US7] Implement GET /api/media/{media_type}/active-progress and POST /api/media/{media_type}/{mal_id}/increment in `backend/src/api/routers/progress.py`
+- [x] T038 [P] [US7] Create DailyProgressCard component with +1 button, bounded dropdown selector, and external link action in `frontend/src/components/DailyProgressCard.tsx`
+- [x] T039 [US7] Implement DailyProgressPage with active media list, empty state encouragement, and showcase shortcut in `frontend/src/pages/DailyProgressPage.tsx`
+- [x] T040 [US7] Wire /:type/progress route to DailyProgressPage in `frontend/src/App.tsx`
 
 **Checkpoint**: The daily routine workflow is complete and testable independently.
 

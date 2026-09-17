@@ -44,8 +44,8 @@ def create_app() -> FastAPI:
 
     # Register routers
     app.include_router(accounts_router)
-    app.include_router(media_router)
     app.include_router(progress_router)
+    app.include_router(media_router)
 
     @app.get("/health")
     async def health_check():

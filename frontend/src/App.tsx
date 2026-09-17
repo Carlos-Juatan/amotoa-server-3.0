@@ -6,6 +6,7 @@ import { AccountSwitcher } from './components/AccountSwitcher';
 import { useActiveAccount } from './hooks/useActiveAccount';
 import { MediaShowcasePage } from './pages/MediaShowcasePage';
 import { MediaDetailPage } from './pages/MediaDetailPage';
+import { DailyProgressPage } from './pages/DailyProgressPage';
 import { getMediaConfig } from './services/mediaConfig';
 import './App.css';
 
@@ -34,6 +35,8 @@ function AppShell() {
           <Route path="/manga"        element={<MediaShowcasePage config={getMediaConfig('manga')} />} />
           <Route path="/light_novels" element={<MediaShowcasePage config={getMediaConfig('light_novel')} />} />
 
+          <Route path="/:type/progress" element={<DailyProgressPage />} />
+          
           {/* US5: Unified Detail Page — /:type/:id MUST precede the catch-all */}
           <Route path="/:type/:id"    element={<MediaDetailPage />} />
 
