@@ -1,6 +1,6 @@
 import React from 'react';
 import { useMediaShowcase } from '../hooks/useMediaShowcase';
-import { MediaConfig } from '../services/mediaConfig';
+import type { MediaConfig } from '../services/mediaConfig';
 import { MediaCarousel } from '../components/MediaCarousel';
 import { Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';

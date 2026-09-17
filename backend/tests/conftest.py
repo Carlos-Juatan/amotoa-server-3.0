@@ -1,6 +1,6 @@
 import pytest
 import pytest_asyncio
-from httpx import AsyncClient
+from httpx import AsyncClient, ASGITransport
 from typing import AsyncGenerator
 from mongomock_motor import AsyncMongoMockClient
 
@@ -8,6 +8,9 @@ from src.main import create_app
 from src.core.database import db_holder
 
 app = create_app()
+
+def pytest_configure(config):
+    config.addinivalue_line("markers", "asyncio: mark test as async")
 
 @pytest.fixture(scope="session")
 def mock_db_client():
@@ -27,5 +30,7 @@ async def setup_db(mock_db_client):
 
 @pytest_asyncio.fixture(scope="function")
 async def async_client() -> AsyncGenerator[AsyncClient, None]:
-    async with AsyncClient(app=app, base_url="http://test") as ac:
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
         yield ac
+

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { api } from '../services/api';
-import { MediaConfig } from '../services/mediaConfig';
-import { MediaCardData } from '../components/MediaCard';
+import type { MediaConfig } from '../services/mediaConfig';
+import type { MediaCardData } from '../components/MediaCard';
 
 export interface ShowcaseData {
   watching: MediaCardData[];

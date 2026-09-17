@@ -89,16 +89,16 @@ description: "Task list for Plataforma Pessoal de Gestão de Mídias (Amontoa V3
 
 ### Tests for User Story 5
 
-- [ ] T023 [P] [US5] Add tests for unified detail and franchise relations endpoint in `backend/tests/test_media_router.py`
+- [x] T023 [P] [US5] Add tests for unified detail and franchise relations endpoint in `backend/tests/test_media_router.py`
 
 ### Implementation for User Story 5
 
-- [ ] T024 [P] [US5] Implement franchise root grouping and relations resolution logic in `backend/src/services/media_service.py`
-- [ ] T025 [US5] Implement GET /api/media/{media_type}/{mal_id} router endpoint in `backend/src/api/routers/media.py`
-- [ ] T026 [P] [US5] Create full-screen image gallery modal component in `frontend/src/components/ImageGalleryModal.tsx`
-- [ ] T027 [P] [US5] Create FranchiseRelations component for unified season display in `frontend/src/components/FranchiseRelations.tsx`
-- [ ] T028 [US5] Implement MediaDetailPage with metadata, Japanese title prominence, gallery carousel, and boundary-aware navigation arrows in `frontend/src/pages/MediaDetailPage.tsx`
-- [ ] T029 [US5] Wire /:type/:id route to MediaDetailPage in `frontend/src/App.tsx`
+- [x] T024 [P] [US5] Implement franchise root grouping and relations resolution logic in `backend/src/services/media_service.py`
+- [x] T025 [US5] Implement GET /api/media/{media_type}/{mal_id} router endpoint in `backend/src/api/routers/media.py`
+- [x] T026 [P] [US5] Create full-screen image gallery modal component in `frontend/src/components/ImageGalleryModal.tsx`
+- [x] T027 [P] [US5] Create FranchiseRelations component for unified season display in `frontend/src/components/FranchiseRelations.tsx`
+- [x] T028 [US5] Implement MediaDetailPage with metadata, Japanese title prominence, gallery carousel, and boundary-aware navigation arrows in `frontend/src/pages/MediaDetailPage.tsx`
+- [x] T029 [US5] Wire /:type/:id route to MediaDetailPage in `frontend/src/App.tsx`
 
 **Checkpoint**: At this point, User Stories 1 AND 5 provide end-to-end showcase-to-detail exploration.
 

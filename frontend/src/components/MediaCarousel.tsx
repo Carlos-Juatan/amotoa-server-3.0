@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { MediaCard, MediaCardData } from './MediaCard';
+import { MediaCard, type MediaCardData } from './MediaCard';
 
 interface MediaCarouselProps {
   title: string;

@@ -69,3 +69,60 @@ class MediaService:
             
         return results
 
+    async def get_media_detail(
+        self,
+        account_id: str,
+        media_type: MediaType,
+        mal_id: int,
+    ) -> Optional[dict]:
+        """
+        Fetch a single media item's full detail, resolving sibling franchise seasons
+        via shared franchise_root_id, and attaching the account's user_progress.
+
+        Returns None if the media item is not found.
+        """
+        # 1. Fetch the primary media document
+        media = await self.db["media"].find_one({"mal_id": mal_id, "type": media_type})
+        if media is None:
+            return None
+
+        # 2. Resolve franchise siblings (same franchise_root_id, different mal_id)
+        franchise_root_id = media.get("franchise_root_id")
+        related_seasons: List[dict] = []
+        if franchise_root_id is not None:
+            sibling_cursor = self.db["media"].find({
+                "franchise_root_id": franchise_root_id,
+                "mal_id": {"$ne": mal_id},
+                "type": media_type,
+            }).sort("year", 1)
+            siblings = await sibling_cursor.to_list(None)
+            for sibling in siblings:
+                # Convert ObjectId fields to strings to ensure JSON-safe payload
+                sibling["_id"] = str(sibling["_id"])
+                sibling["id"] = sibling["_id"]
+                # Fetch progress for each sibling so the frontend card can show state
+                sibling_prog = await self.db["user_progress"].find_one({
+                    "account_id": account_id,
+                    "media_mal_id": sibling["mal_id"],
+                })
+                if sibling_prog:
+                    sibling_prog["_id"] = str(sibling_prog["_id"])
+                sibling["user_progress"] = sibling_prog
+                related_seasons.append(sibling)
+
+        # 3. Fetch user progress for the primary item
+        progress = await self.db["user_progress"].find_one({
+            "account_id": account_id,
+            "media_mal_id": mal_id,
+        })
+        if progress:
+            progress["_id"] = str(progress["_id"])
+
+        # 4. Assemble detail payload
+        media["id"] = str(media["_id"])
+        media["user_progress"] = progress
+        media["related_seasons"] = related_seasons
+
+        return media
+
+

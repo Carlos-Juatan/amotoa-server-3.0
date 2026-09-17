@@ -5,6 +5,7 @@ import { WIPPage } from './pages/WIPPage';
 import { AccountSwitcher } from './components/AccountSwitcher';
 import { useActiveAccount } from './hooks/useActiveAccount';
 import { MediaShowcasePage } from './pages/MediaShowcasePage';
+import { MediaDetailPage } from './pages/MediaDetailPage';
 import { getMediaConfig } from './services/mediaConfig';
 import './App.css';
 
@@ -28,12 +29,16 @@ function AppShell() {
       {/* ── Page Content ── */}
       <main className="flex-1">
         <Routes>
-          <Route path="/"           element={<Dashboard activeAccount={activeAccount} />} />
-          <Route path="/animes"     element={<MediaShowcasePage config={getMediaConfig('anime')} />} />
-          <Route path="/manga"      element={<MediaShowcasePage config={getMediaConfig('manga')} />} />
+          <Route path="/"             element={<Dashboard activeAccount={activeAccount} />} />
+          <Route path="/animes"       element={<MediaShowcasePage config={getMediaConfig('anime')} />} />
+          <Route path="/manga"        element={<MediaShowcasePage config={getMediaConfig('manga')} />} />
           <Route path="/light_novels" element={<MediaShowcasePage config={getMediaConfig('light_novel')} />} />
-          <Route path="/wip/:module" element={<WIPPage />} />
-          <Route path="*"           element={<Navigate to="/" replace />} />
+
+          {/* US5: Unified Detail Page — /:type/:id MUST precede the catch-all */}
+          <Route path="/:type/:id"    element={<MediaDetailPage />} />
+
+          <Route path="/wip/:module"  element={<WIPPage />} />
+          <Route path="*"             element={<Navigate to="/" replace />} />
         </Routes>
       </main>
     </div>
