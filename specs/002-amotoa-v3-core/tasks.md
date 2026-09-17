@@ -41,15 +41,15 @@ description: "Task list for Plataforma Pessoal de Gestão de Mídias (Amontoa V3
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Setup MongoDB database client factory (`get_database()`), collections, and index initialization in `backend/src/core/database.py` per Constitution Principle V
-- [ ] T005 [P] Create shared media Pydantic schemas in `backend/src/api/schemas/media.py`
-- [ ] T006 [P] Create user progress Pydantic schemas in `backend/src/api/schemas/progress.py`
-- [ ] T007 [P] Create batch jobs and backup Pydantic schemas in `backend/src/api/schemas/batch.py`
-- [ ] T008 [P] Implement application exceptions and error handlers in `backend/src/core/exceptions.py`
-- [ ] T009 [P] Verify and validate X-Active-Account header dependency in `backend/src/api/dependencies.py`
-- [ ] T010 [P] Verify centralized frontend API client with X-Active-Account header handling in `frontend/src/services/api.ts`
-- [ ] T011 [P] Implement Media Showcase Configuration Factory in `frontend/src/services/mediaConfig.ts`
-- [ ] T012 [P] Verify and integrate active account switching state hook in `frontend/src/hooks/useActiveAccount.ts`
+- [x] T004 Setup MongoDB database client factory (`get_database()`), collections, and index initialization in `backend/src/core/database.py` per Constitution Principle V
+- [x] T005 [P] Create shared media Pydantic schemas in `backend/src/api/schemas/media.py`
+- [x] T006 [P] Create user progress Pydantic schemas in `backend/src/api/schemas/progress.py`
+- [x] T007 [P] Create batch jobs and backup Pydantic schemas in `backend/src/api/schemas/batch.py`
+- [x] T008 [P] Implement application exceptions and error handlers in `backend/src/core/exceptions.py`
+- [x] T009 [P] Verify and validate X-Active-Account header dependency in `backend/src/api/dependencies.py`
+- [x] T010 [P] Verify centralized frontend API client with X-Active-Account header handling in `frontend/src/services/api.ts`
+- [x] T011 [P] Implement Media Showcase Configuration Factory in `frontend/src/services/mediaConfig.ts`
+- [x] T012 [P] Verify and integrate active account switching state hook in `frontend/src/hooks/useActiveAccount.ts`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
