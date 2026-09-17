@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from src.core.config import settings
 from src.core.database import init_db, close_db
 from src.api.routers.accounts import router as accounts_router
+from src.api.routers.media import router as media_router
 
 # Configure logging format
 logging.basicConfig(
@@ -42,6 +43,7 @@ def create_app() -> FastAPI:
 
     # Register routers
     app.include_router(accounts_router)
+    app.include_router(media_router)
 
     @app.get("/health")
     async def health_check():

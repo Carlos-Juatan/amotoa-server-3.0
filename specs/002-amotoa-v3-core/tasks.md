@@ -63,19 +63,19 @@ description: "Task list for Plataforma Pessoal de Gestão de Mídias (Amontoa V3
 
 ### Tests for User Story 1
 
-- [ ] T013 [P] [US1] Create unit and integration tests for media showcase endpoint in `backend/tests/test_media_router.py`
+- [x] T013 [P] [US1] Create unit and integration tests for media showcase endpoint in `backend/tests/test_media_router.py`
 
 ### Implementation for User Story 1
 
-- [ ] T014 [P] [US1] Implement MediaService catalog querying and carousel status grouping in `backend/src/services/media_service.py`
-- [ ] T015 [US1] Implement GET /api/media/{media_type} router endpoint in `backend/src/api/routers/media.py`
-- [ ] T016 [P] [US1] Implement fallback placeholder image component with dark mode styling in `frontend/src/components/common/PlaceholderImage.tsx`
-- [ ] T017 [P] [US1] Implement hover quick info popup component in `frontend/src/components/MediaQuickInfoHover.tsx`
-- [ ] T018 [P] [US1] Implement MediaCard component with Japanese primary and English secondary title hierarchy in `frontend/src/components/MediaCard.tsx`
-- [ ] T019 [US1] Implement horizontal scrolling MediaCarousel component with arrow navigation in `frontend/src/components/MediaCarousel.tsx`
-- [ ] T020 [US1] Implement useMediaShowcase data fetching hook in `frontend/src/hooks/useMediaShowcase.ts`
-- [ ] T021 [US1] Implement parameterized MediaShowcasePage using mediaConfig in `frontend/src/pages/MediaShowcasePage.tsx`
-- [ ] T022 [US1] Wire /animes, /manga, and /light_novels routes to MediaShowcasePage in `frontend/src/App.tsx`
+- [x] T014 [P] [US1] Implement MediaService catalog querying and carousel status grouping in `backend/src/services/media_service.py`
+- [x] T015 [US1] Implement GET /api/media/{media_type} router endpoint in `backend/src/api/routers/media.py`
+- [x] T016 [P] [US1] Implement fallback placeholder image component with dark mode styling in `frontend/src/components/common/PlaceholderImage.tsx`
+- [x] T017 [P] [US1] Implement hover quick info popup component in `frontend/src/components/MediaQuickInfoHover.tsx`
+- [x] T018 [P] [US1] Implement MediaCard component with Japanese primary and English secondary title hierarchy in `frontend/src/components/MediaCard.tsx`
+- [x] T019 [US1] Implement horizontal scrolling MediaCarousel component with arrow navigation in `frontend/src/components/MediaCarousel.tsx`
+- [x] T020 [US1] Implement useMediaShowcase data fetching hook in `frontend/src/hooks/useMediaShowcase.ts`
+- [x] T021 [US1] Implement parameterized MediaShowcasePage using mediaConfig in `frontend/src/pages/MediaShowcasePage.tsx`
+- [x] T022 [US1] Wire /animes, /manga, and /light_novels routes to MediaShowcasePage in `frontend/src/App.tsx`
 
 **Checkpoint**: At this point, User Story 1 is fully functional and delivers the core showcase MVP.
 

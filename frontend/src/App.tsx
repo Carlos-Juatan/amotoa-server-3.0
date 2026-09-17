@@ -4,6 +4,8 @@ import { Dashboard } from './pages/Dashboard';
 import { WIPPage } from './pages/WIPPage';
 import { AccountSwitcher } from './components/AccountSwitcher';
 import { useActiveAccount } from './hooks/useActiveAccount';
+import { MediaShowcasePage } from './pages/MediaShowcasePage';
+import { getMediaConfig } from './services/mediaConfig';
 import './App.css';
 
 function AppShell() {
@@ -27,6 +29,9 @@ function AppShell() {
       <main className="flex-1">
         <Routes>
           <Route path="/"           element={<Dashboard activeAccount={activeAccount} />} />
+          <Route path="/animes"     element={<MediaShowcasePage config={getMediaConfig('anime')} />} />
+          <Route path="/manga"      element={<MediaShowcasePage config={getMediaConfig('manga')} />} />
+          <Route path="/light_novels" element={<MediaShowcasePage config={getMediaConfig('light_novel')} />} />
           <Route path="/wip/:module" element={<WIPPage />} />
           <Route path="*"           element={<Navigate to="/" replace />} />
         </Routes>
