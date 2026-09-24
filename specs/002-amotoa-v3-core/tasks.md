@@ -198,15 +198,15 @@ description: "Task list for Plataforma Pessoal de Gestão de Mídias (Amontoa V3
 
 ### Tests for User Story 4
 
-- [ ] T052 [P] [US4] Create unit and integration tests for batch worker lifecycle and resume in `backend/tests/test_batch_worker.py`
+- [x] T052 [P] [US4] Create unit and integration tests for batch worker lifecycle and resume in `backend/tests/test_batch_worker.py`
 
 ### Implementation for User Story 4
 
-- [ ] T053 [P] [US4] Implement BatchWorker with cursor progression, chunking, pause/resume state checking, and discrete error logging in `backend/src/services/batch_worker.py`
-- [ ] T054 [US4] Implement batch job endpoints (GET /api/batch-jobs, POST /api/batch-jobs, POST /api/batch-jobs/{id}/pause, POST /api/batch-jobs/{id}/resume) in `backend/src/api/routers/batch_jobs.py`
-- [ ] T055 [P] [US4] Create BatchImportModal component with year range pickers, progress bar, pause/resume controls, and error log viewer in `frontend/src/components/BatchImportModal.tsx`
-- [ ] T056 [P] [US4] Create background job notification indicator in `frontend/src/components/Navbar.tsx`
-- [ ] T057 [US4] Integrate BatchImportModal toggle and notification indicator into the application header in `frontend/src/App.tsx`
+- [x] T053 [P] [US4] Implement BatchWorker with cursor progression, chunking, pause/resume state checking, and discrete error logging in `backend/src/services/batch_worker.py`
+- [x] T054 [US4] Implement batch job endpoints (GET /api/batch-jobs, POST /api/batch-jobs, POST /api/batch-jobs/{id}/pause, POST /api/batch-jobs/{id}/resume) in `backend/src/api/routers/batch_jobs.py`
+- [x] T055 [P] [US4] Create BatchImportModal component with year range pickers, progress bar, pause/resume controls, and error log viewer in `frontend/src/components/BatchImportModal.tsx`
+- [x] T056 [P] [US4] Create background job notification indicator in `frontend/src/components/Navbar.tsx`
+- [x] T057 [US4] Integrate BatchImportModal toggle and notification indicator into the application header in `frontend/src/App.tsx`
 
 **Checkpoint**: Historical ingestion enables deep archive collection resupply safely.
 

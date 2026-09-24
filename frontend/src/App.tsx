@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { LayoutGrid } from 'lucide-react';
 import { Dashboard } from './pages/Dashboard';
@@ -8,10 +9,13 @@ import { MediaShowcasePage } from './pages/MediaShowcasePage';
 import { MediaDetailPage } from './pages/MediaDetailPage';
 import { DailyProgressPage } from './pages/DailyProgressPage';
 import { getMediaConfig } from './services/mediaConfig';
+import { BatchImportModal } from './components/BatchImportModal';
+import { NavbarBatchIndicator } from './components/Navbar';
 import './App.css';
 
 function AppShell() {
   const { activeAccount, switchAccount } = useActiveAccount();
+  const [batchModalOpen, setBatchModalOpen] = useState(false);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -23,9 +27,21 @@ function AppShell() {
           <span className="text-sm font-bold tracking-wide">Amontoa Hub</span>
         </div>
 
-        {/* Account switcher */}
-        <AccountSwitcher activeAccount={activeAccount} onSwitch={switchAccount} />
+        {/* Right-side controls */}
+        <div className="flex items-center gap-3">
+          {/* Batch import indicator */}
+          <NavbarBatchIndicator onOpen={() => setBatchModalOpen(true)} />
+
+          {/* Account switcher */}
+          <AccountSwitcher activeAccount={activeAccount} onSwitch={switchAccount} />
+        </div>
       </header>
+
+      {/* ── Batch Import Modal ── */}
+      <BatchImportModal
+        isOpen={batchModalOpen}
+        onClose={() => setBatchModalOpen(false)}
+      />
 
       {/* ── Page Content ── */}
       <main className="flex-1">
