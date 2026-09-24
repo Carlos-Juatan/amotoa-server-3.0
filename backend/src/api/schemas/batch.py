@@ -45,3 +45,12 @@ class BatchImportJobResponse(BatchImportJobBase):
 
     class Config:
         populate_by_name = True
+
+class BackupResponse(BaseModel):
+    filename: str
+    size_bytes: int
+    created_at: datetime
+
+class BackupCreateResponse(BaseModel):
+    message: str
+    filename: Optional[str] = None

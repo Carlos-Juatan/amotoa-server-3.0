@@ -153,6 +153,23 @@ async def _manga_ln_periodic_sync_loop(db, interval_seconds: int) -> None:
             logger.info("Manga/LN periodic sync loop cancelled.")
             return
 
+async def _backup_periodic_loop() -> None:
+    """Run daily automated backups."""
+    from src.services.backup_service import BackupService
+    interval_seconds = 86400  # 1 day
+
+    while True:
+        try:
+            await asyncio.sleep(interval_seconds)
+            logger.info("Starting scheduled daily MongoDB backup.")
+            filename = await BackupService.create_backup()
+            logger.info(f"Daily backup completed: {filename}")
+        except asyncio.CancelledError:
+            logger.info("Backup periodic loop cancelled.")
+            return
+        except Exception as exc:
+            logger.error("Scheduled daily backup failed: %s", exc, exc_info=True)
+
 
 # ---------------------------------------------------------------------------
 # Public API — used from main.py lifespan
@@ -160,6 +177,7 @@ async def _manga_ln_periodic_sync_loop(db, interval_seconds: int) -> None:
 
 _anime_task: Optional[asyncio.Task] = None
 _manga_ln_task: Optional[asyncio.Task] = None
+_backup_task: Optional[asyncio.Task] = None
 
 
 async def start_scheduler(db) -> None:
@@ -172,13 +190,13 @@ async def start_scheduler(db) -> None:
     Args:
         db: The active AsyncIOMotorDatabase instance from `get_database()`.
     """
-    global _anime_task, _manga_ln_task
+    global _anime_task, _manga_ln_task, _backup_task
 
     interval = settings.MANGA_LN_SYNC_INTERVAL  # seconds (default 86400)
 
     logger.info(
         "Starting background schedulers — anime: seasonal boundary trigger, "
-        "manga/LN: every %ds.",
+        "manga/LN: every %ds, backup: daily.",
         interval,
     )
 
@@ -190,6 +208,10 @@ async def start_scheduler(db) -> None:
         _manga_ln_periodic_sync_loop(db, interval_seconds=interval),
         name="manga_ln_periodic_sync",
     )
+    _backup_task = asyncio.create_task(
+        _backup_periodic_loop(),
+        name="daily_mongodb_backup",
+    )
 
 
 async def stop_scheduler() -> None:
@@ -198,9 +220,15 @@ async def stop_scheduler() -> None:
 
     Call this inside the FastAPI lifespan shutdown handler.
     """
-    global _anime_task, _manga_ln_task
+    global _anime_task, _manga_ln_task, _backup_task
 
-    for task, name in [(_anime_task, "anime_seasonal_sync"), (_manga_ln_task, "manga_ln_periodic_sync")]:
+    tasks_to_stop = [
+        (_anime_task, "anime_seasonal_sync"), 
+        (_manga_ln_task, "manga_ln_periodic_sync"),
+        (_backup_task, "daily_mongodb_backup")
+    ]
+
+    for task, name in tasks_to_stop:
         if task is not None and not task.done():
             task.cancel()
             try:
@@ -211,3 +239,4 @@ async def stop_scheduler() -> None:
 
     _anime_task = None
     _manga_ln_task = None
+    _backup_task = None

@@ -5,10 +5,7 @@ import { WIPPlaceholder } from '../components/WIPPlaceholder';
 // Human-readable names for each module key
 const MODULE_NAMES: Record<string, string> = {
   series: 'Series',
-  animes: 'Animes',
   youtube: 'YouTube',
-  light_novels: 'Light Novels',
-  manga: 'Manga',
   jogos: 'Jogos',
   financas: 'Finanças',
   saude_fitness: 'Saúde & Fitness',

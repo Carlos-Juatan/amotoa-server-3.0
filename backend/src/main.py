@@ -8,6 +8,8 @@ from src.core.scheduler import start_scheduler, stop_scheduler
 from src.api.routers.accounts import router as accounts_router
 from src.api.routers.media import router as media_router
 from src.api.routers.progress import router as progress_router
+from src.api.routers.batch_jobs import router as batch_jobs_router
+from src.api.routers.admin import router as admin_router
 
 # Configure logging format
 logging.basicConfig(
@@ -51,6 +53,8 @@ def create_app() -> FastAPI:
     app.include_router(accounts_router)
     app.include_router(progress_router)
     app.include_router(media_router)
+    app.include_router(batch_jobs_router)
+    app.include_router(admin_router)
 
     @app.get("/health")
     async def health_check():

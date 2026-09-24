@@ -216,12 +216,12 @@ description: "Task list for Plataforma Pessoal de Gestão de Mídias (Amontoa V3
 
 **Purpose**: Automated daily compressed backups (FR-024), router registrations in FastAPI, WIP placeholder cleanups, and end-to-end verification
 
-- [ ] T058 [P] Create unit tests for backup creation, retention pruning, and recovery logging in `backend/tests/test_backup_service.py`
-- [ ] T059 [P] Implement daily compressed MongoDB backup service (FR-024) with 14-day retention in `backend/src/services/backup_service.py`
-- [ ] T060 Implement admin backup endpoints (GET /api/admin/backups, POST /api/admin/backups) in `backend/src/api/routers/admin.py`
-- [ ] T061 Register all new routers (media, progress, batch_jobs, admin) and initialize background schedulers in `backend/src/main.py`
-- [ ] T062 [P] Clean up obsolete WIP placeholders for animes, manga, and light novels in `frontend/src/pages/WIPPage.tsx`
-- [ ] T063 Run end-to-end test suite, latency benchmark (<50ms for local endpoints, SC-004), and build validation per quickstart.md (pytest tests/ -v, npm run lint, npm run build)
+- [x] T058 [P] Create unit tests for backup creation, retention pruning, and recovery logging in `backend/tests/test_backup_service.py`
+- [x] T059 [P] Implement daily compressed MongoDB backup service (FR-024) with 14-day retention in `backend/src/services/backup_service.py`
+- [x] T060 Implement admin backup endpoints (GET /api/admin/backups, POST /api/admin/backups) in `backend/src/api/routers/admin.py`
+- [x] T061 Register all new routers (media, progress, batch_jobs, admin) and initialize background schedulers in `backend/src/main.py`
+- [x] T062 [P] Clean up obsolete WIP placeholders for animes, manga, and light novels in `frontend/src/pages/WIPPage.tsx`
+- [x] T063 Run end-to-end test suite, latency benchmark (<50ms for local endpoints, SC-004), and build validation per quickstart.md (pytest tests/ -v, npm run lint, npm run build)
 
 ---
 
